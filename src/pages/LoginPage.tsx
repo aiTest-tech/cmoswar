@@ -6,6 +6,7 @@ import { useLoginMutation } from '../api/registerApi';
 import Loader from '../component/Loader';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { NavLink } from 'react-router-dom';
 
 const LoginPage: React.FC = () => {
   const [login, { isLoading, isError, error }] = useLoginMutation();
@@ -77,10 +78,10 @@ const LoginPage: React.FC = () => {
           </button>
         </form>
         <p className="text-sm text-center text-gray-500 mt-4">
-          Don't have an account?{' '}
-          <a href="/register" className="text-blue-500 hover:underline">
-            Register here
-          </a>
+          Forgot Password
+          <NavLink to="/forgot-password" className="text-blue-500 hover:underline">
+            Forgot Password {""}
+          </NavLink>
         </p>
       </div>
       {/* ToastContainer is where all the toasts will be rendered */}
