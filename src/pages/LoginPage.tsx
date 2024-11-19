@@ -2,7 +2,10 @@ import React from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { loginSchema, LoginType } from '../types/auth';
-import { useLoginMutation } from '../api/registerApi'; // ensure the path is correct
+import { useLoginMutation } from '../api/registerApi';
+import Loader from '../component/Loader';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const LoginPage: React.FC = () => {
   const [login, { isLoading, isError, error }] = useLoginMutation();
@@ -19,13 +22,18 @@ const LoginPage: React.FC = () => {
     console.log('Form data submitted:', data);
     try {
       const result = await login(data).unwrap(); // unwrap result to handle response directly
-      console.log("Login success:", result);
+      console.log('Login success:', result);
       localStorage.setItem('accessToken', result.access);
       document.cookie = `refreshToken=${result.refresh}; Secure; HttpOnly; SameSite=Strict`;
-      alert('Login successful');
+      toast.success("Successfully login")
     } catch (err) {
       console.error('Failed to login:', err);
-      alert('Login failed, please try again.');
+
+      // Handle actual network error or response error
+      const errorMessage = (err as any)?.error || 'Login failed! Please check your credentials and try again.';
+
+      // Display error using react-toastify
+      toast.error(errorMessage);
     }
   };
 
@@ -39,8 +47,7 @@ const LoginPage: React.FC = () => {
             <input
               type="email"
               {...register('email')}
-              className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors.email ? 'border-red-500' : 'border-gray-300'
-                }`}
+              className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors.email ? 'border-red-500' : 'border-gray-300'}`}
               placeholder="Enter your email"
             />
             {errors.email && <p className="text-sm text-red-500 mt-1">{errors.email.message}</p>}
@@ -50,8 +57,7 @@ const LoginPage: React.FC = () => {
             <input
               type="password"
               {...register('password')}
-              className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors.password ? 'border-red-500' : 'border-gray-300'
-                }`}
+              className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors.password ? 'border-red-500' : 'border-gray-300'}`}
               placeholder="Enter your password"
             />
             {errors.password && <p className="text-sm text-red-500 mt-1">{errors.password.message}</p>}
@@ -59,16 +65,16 @@ const LoginPage: React.FC = () => {
           <button
             type="submit"
             disabled={isLoading}
-            className={`w-full py-2 text-white rounded-lg ${isLoading ? 'bg-blue-300 cursor-not-allowed' : 'bg-blue-500 hover:bg-blue-600'
-              }`}
+            className={`w-full py-2 [30px] relative text-white rounded-lg ${isLoading ? 'bg-blue-300 cursor-not-allowed h-[40px]' : 'bg-blue-500 hover:bg-blue-600'}`}
           >
-            {isLoading ? 'Logging in...' : 'Login'}
+            {isLoading ? (
+              <div className="flex justify-center items-center">
+                <Loader />
+              </div>
+            ) : (
+              'Login'
+            )}
           </button>
-          {isError && (
-            <p className="text-sm text-red-500 mt-2 text-center">
-              {(error as any)?.data?.message || 'Login failed'}
-            </p>
-          )}
         </form>
         <p className="text-sm text-center text-gray-500 mt-4">
           Don't have an account?{' '}
@@ -77,6 +83,8 @@ const LoginPage: React.FC = () => {
           </a>
         </p>
       </div>
+      {/* ToastContainer is where all the toasts will be rendered */}
+      <ToastContainer position="top-right" autoClose={5000} hideProgressBar={false} />
     </div>
   );
 };
