@@ -276,13 +276,13 @@ const HomePage = () => {
           {/* Audio Player & Transcription */}
           {audioUrl && (
             <div className="text-center space-y-4">
-              <audio controls src={audioUrl} className="md:w-[20%] mx-auto w-full" />
+              <audio controls src={audioUrl} className="md:w-[30%] mx-auto w-full" />
               <div className="text-white mt-4">
                 {transcription && (<h2 className="font-bold">Transcription:</h2>)}
                 {transcription && (
                   <div className="max-w-md:w-[50%] md:w-[10%] mt-8 mx-auto">
                     <div className="text-black dark:text-black">
-                      <div className="w-full border-primary p-2 text-white text-xl">
+                      <div className="w-[500px] relative max-h-[200px] overflow-auto  -left-[200px] border-primary p-2  text-white text-xl">
                         {transcription}
                       </div>
                       <div className="flex gap-3">
