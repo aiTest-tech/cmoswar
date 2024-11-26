@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import Navbar from "../component/Navbar";
 import { AiFillAudio } from "react-icons/ai";
 import axios from "axios";
@@ -6,6 +6,7 @@ import { Modal } from "flowbite-react";
 import { CircularProgressbar, buildStyles } from "react-circular-progressbar";
 import { FaArrowAltCircleRight } from "react-icons/fa";
 import "react-circular-progressbar/dist/styles.css";
+import ReactSpeedometer from "react-d3-speedometer/slim"
 
 type Language = "gu" | "en";
 
@@ -25,10 +26,13 @@ const HomePage = () => {
   const audioChunks = useRef<Blob[]>([]);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [editedTranscription, setEditedTranscription] = useState<string>(null);
+  const [gravity, setGravity] = useState(0);
   const [sentimentResponse, setSentimentResponse] = useState<SentimentResponse>({
-    sentiment: "Neutral",
-    gravity: 0,
+    sentiment: null,
+    gravity: null,
   });
+
+
 
   // Start recording audio
   const startRecording = async () => {
@@ -124,7 +128,7 @@ const HomePage = () => {
       formData.append("lang", language); // Dynamically use selected language
       formData.append("secret_key", "wtc@12345");
 
-      const response = await axios.post("http://10.10.2.179:6162/api/speech-to-text/", formData, {
+      const response = await axios.post("http://10.10.2.179:6162/api/speech-to-text2/", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
@@ -172,8 +176,8 @@ const HomePage = () => {
       })
       console.log("brijesh response submit-audio", response)
       if (response.data.status === "success") {
-        setTranscription(null);
-        setTranscriptionId(null);
+        // setTranscription(null);
+        // setTranscriptionId(null);
         setLoading(false);
       }
     } catch (error) {
@@ -184,6 +188,7 @@ const HomePage = () => {
   const handlesentiment = async () => {
     try {
       if (editedTranscription != null) {
+        setLoading(true);
         const formData = new FormData();
         formData.append("data", editedTranscription);
         formData.append("lang", language);
@@ -192,6 +197,7 @@ const HomePage = () => {
             "Content-Type": "multipart/form-data"
           }
         })
+        setLoading(false);
         setSentimentResponse(response.data);
       } else {
         const formData = new FormData();
@@ -230,9 +236,60 @@ const HomePage = () => {
     }
   };
 
+  useEffect(() => {
+    // Simulate an API call with setTimeout or actual API call here
+    const fetchApiData = async () => {
+      // Simulate a delay for the API response
+      setTimeout(() => {
+        const gravityValue = 0.5; // Example gravity value from API (between -1 to 1)
+        setGravity(gravityValue); // Set the gravity value to state
+      }, 2000); // Simulate API delay of 2 seconds
+    };
+
+    fetchApiData();
+
+  }, [gravity]);
+
   return (
     <>
       <Navbar />
+      <div className="absolute top-[120px] left-[40px] z-[555]">
+        {/* <ReactSpeedometer
+          value={333}
+          segments={5}
+          segmentColors={[
+            "#bf616a",
+            "#d08770",
+            "#ebcb8b",
+            "#a3be8c",
+            "#b48ead",
+          ]}
+        // startColor will be ignored
+        // endColor will be ignored
+        /> */}
+        {
+          sentimentResponse.gravity != null && (
+            <>
+              {sentimentResponse.sentiment === "Negative" && (
+                <span role="img" aria-label="danger" style={{ fontSize: '40px', color: 'red' }}>
+                  <span className="font-extrabold">Negative</span> {sentimentResponse.gravity.toFixed(2)}
+                </span>
+              )}
+              {sentimentResponse.sentiment === "Positive" && (
+                <span role="img" aria-label="smiley" style={{ fontSize: '40px', color: 'green' }}>
+                  <span className="font-extrabold">Positive</span> {sentimentResponse.gravity.toFixed(2)}
+                </span>
+              )}
+              {sentimentResponse.sentiment === "Neutral" && (
+                <span role="img" aria-label="neutral" style={{ fontSize: '40px', color: 'gray' }}>
+                  <span className="font-extrabold">Neutral</span> {sentimentResponse.gravity.toFixed(2)}
+                </span>
+              )}
+            </>
+          )
+        }
+
+      </div>
       <div className="relative top-16 flex justify-center mt-10">
         <div className="flex flex-col max-w-[90%] w-full gap-8">
           {/* Recording Controls */}
@@ -305,7 +362,7 @@ const HomePage = () => {
 
           {/* Loading State */}
           {loading && (
-            <div className="flex justify-center items-center">
+            <div className="flex justify-center items-center absolute w-[90vw] h-[100vh]">
               <div className="w-12 h-12 border-t-4 border-blue-500 border-solid rounded-full animate-spin"></div>
             </div>
           )}

@@ -45,7 +45,7 @@ const Navbar = () => {
               <span className="text-white">Sign Up</span>
             </NavLink>
           </div>
-          <NavLink to={"/login"}>
+          <NavLink to={"http://localhost:5173/signin"}>
             <div className="flex justify-center items-center rounded-full bg-white py-[8px] px-[32px] cursor-pointer">
               <span className="text-black">Login</span>
             </div>
